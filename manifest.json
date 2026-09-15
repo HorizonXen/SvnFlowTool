@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "version": "1.25.0",
+  "build": 60,
+  "artifacts": {
+    "macos-arm64": {
+      "status": "available",
+      "file": "packages/SvnFlow-macOS-arm64-1.25.0-60.zip",
+      "installer": "install-macos.sh"
+    },
+    "windows-x64": {
+      "status": "pending",
+      "file": null,
+      "installer": "install-windows.ps1"
+    }
+  }
+}

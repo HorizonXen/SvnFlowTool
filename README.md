@@ -53,7 +53,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\packaging\install-windows.
 & "$env:LOCALAPPDATA\Programs\SvnFlow\SvnFlow.exe" --version
 ```
 
-Windows 产物为 `dist\SvnFlow-Windows-x64-<version>-<build>.zip`。推送 `v*` 标签时，GitHub Actions 会同时构建 macOS 和 Windows 包，并上传两个平台的 ZIP、SHA-256、安装脚本及 `release.json` 到同一个 GitHub Release。
+Windows 产物为 `dist\SvnFlow-Windows-x64-<version>-<build>.zip`。推送 `v*` 标签时，GitHub Actions 会同时构建 macOS 和 Windows 包，并把两个平台的 ZIP 与 SHA-256 下发到 `main` 分支；安装脚本、清单及说明也从该分支提供。
 
 版本以 `release.json` 为准。当前版本为 **1.26.0（构建 62）**。配置本机 `.svnflow-delivery-path` 后，发行仍分为三个明确步骤：
 

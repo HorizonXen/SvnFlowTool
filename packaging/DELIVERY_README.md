@@ -30,7 +30,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install-windows.ps1
 
 默认安装到当前用户的 `%LOCALAPPDATA%\Programs\SvnFlow`，不需要管理员权限，并创建开始菜单快捷方式。
 
-从 GitHub Release 直接安装或更新时，可下载 `install-windows.ps1` 后执行：
+从 GitHub 仓库直接安装或更新时，可下载 `install-windows.ps1` 后执行：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\install-windows.ps1 -Repository OWNER/REPOSITORY

@@ -3,7 +3,7 @@ param(
     [string]$InstallDir = $(if ($env:SVNFLOW_INSTALL_DIR) { $env:SVNFLOW_INSTALL_DIR } else { Join-Path $env:LOCALAPPDATA "Programs\SvnFlow" }),
     [string]$PackageDir = $(if ($env:SVNFLOW_PACKAGE_DIR) { $env:SVNFLOW_PACKAGE_DIR } else { Join-Path $PSScriptRoot "packages" }),
     [string]$Repository = $env:SVNFLOW_GITHUB_REPOSITORY,
-    [string]$ReleaseTag = "latest",
+    [string]$ReleaseBaseUrl = $env:SVNFLOW_RELEASE_BASE_URL,
     [switch]$NoShortcut
 )
 
@@ -17,19 +17,16 @@ if (-not [Environment]::Is64BitOperatingSystem) {
 $DownloadRoot = $null
 $ReleasePath = Join-Path $PSScriptRoot "release.json"
 if (-not (Test-Path -LiteralPath $ReleasePath -PathType Leaf)) {
-    if (-not $Repository) {
-        throw "release.json is missing. Run this installer from a release bundle, or pass -Repository owner/name."
-    }
     $DownloadRoot = Join-Path ([IO.Path]::GetTempPath()) ("svnflow-download-" + [Guid]::NewGuid().ToString("N"))
     New-Item -ItemType Directory -Path $DownloadRoot | Out-Null
     $PackageDir = $DownloadRoot
     $ReleasePath = Join-Path $DownloadRoot "release.json"
-    $ApiPath = if ($ReleaseTag -eq "latest") { "latest" } else { "tags/$ReleaseTag" }
+    if (-not $ReleaseBaseUrl) {
+        $TargetRepository = if ($Repository) { $Repository } else { "HorizonXen/SvnFlowTool" }
+        $ReleaseBaseUrl = "https://raw.githubusercontent.com/$TargetRepository/main"
+    }
     $Headers = @{ "User-Agent" = "SvnFlow-Windows-Installer" }
-    $GitHubRelease = Invoke-RestMethod -Headers $Headers -Uri "https://api.github.com/repos/$Repository/releases/$ApiPath"
-    $ReleaseAsset = $GitHubRelease.assets | Where-Object name -eq "release.json" | Select-Object -First 1
-    if (-not $ReleaseAsset) { throw "The GitHub release does not contain release.json." }
-    Invoke-WebRequest -Headers $Headers -Uri $ReleaseAsset.browser_download_url -OutFile $ReleasePath
+    Invoke-WebRequest -Headers $Headers -Uri "$ReleaseBaseUrl/release.json" -OutFile $ReleasePath
 }
 
 $Release = Get-Content -LiteralPath $ReleasePath -Raw | ConvertFrom-Json
@@ -39,9 +36,7 @@ $ChecksumFile = "$Archive.sha256"
 
 if ($DownloadRoot) {
     foreach ($Name in @($ArchiveName, "$ArchiveName.sha256")) {
-        $Asset = $GitHubRelease.assets | Where-Object name -eq $Name | Select-Object -First 1
-        if (-not $Asset) { throw "The GitHub release does not contain $Name." }
-        Invoke-WebRequest -Headers $Headers -Uri $Asset.browser_download_url -OutFile (Join-Path $DownloadRoot $Name)
+        Invoke-WebRequest -Headers $Headers -Uri "$ReleaseBaseUrl/packages/$Name" -OutFile (Join-Path $DownloadRoot $Name)
     }
 }
 

@@ -1,8 +1,8 @@
 # SvnFlow · 提交合并分支工具
 
-> A focused SVN desktop workflow for macOS — working copies, diffs, history, commits, and controlled Dev → Release merges in one place.
+> A focused SVN workflow for macOS and Windows — working copies, diffs, history, commits, and controlled Dev → Release merges in one place.
 >
-> 面向 macOS 的 SVN 桌面工作流工具——在一个工作区中完成工作副本管理、差异审查、历史查询、提交，以及受保护的 Dev → Release 定向合入。
+> 面向 macOS 与 Windows 的 SVN 工作流工具——集中完成工作副本管理、差异审查、历史查询、提交，以及受保护的 Dev → Release 定向合入。
 
 [中文](#中文) · [English](#english)
 
@@ -24,7 +24,7 @@ SvnFlow 面向需要同时维护多个 SVN 工作副本、频繁审查配置差�
 
 ### 安装
 
-当前可安装版本：**1.25.0（构建 60）**。
+当前可安装版本：**1.26.0（构建 62）**。
 
 系统要求：**macOS 14 或更高版本、Apple Silicon、已安装 `svn` 命令行客户端**。
 
@@ -52,7 +52,22 @@ cd SvnFlowTool
 
 当前 macOS 包使用临时签名，适合本机验证。它尚未经过 Apple Developer ID 签名和公证，因此不是面向普通用户的正式公证发行版。安装器不会绕过 Gatekeeper。
 
-Windows 10/11 x64 的共享引擎正在准备中，但 **Windows 桌面应用尚未发布**。仓库中的 PowerShell 安装器只用于校验未来的正式 GUI 包；在包缺失时会明确停止，不会把内部验证引擎伪装成桌面应用。
+Windows 10/11 x64 提供可安装的命令行版，复用与 macOS 应用相同的受保护合入和进度引擎。先下载并执行安装器：
+
+```powershell
+$installer = Join-Path $env:TEMP "install-svnflow.ps1"
+Invoke-WebRequest https://raw.githubusercontent.com/HorizonXen/SvnFlowTool/main/install-windows.ps1 -OutFile $installer
+powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Repository HorizonXen/SvnFlowTool
+```
+
+重复执行同一组命令即可更新。安装后核对版本或查看合入命令：
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\SvnFlow\SvnFlow.exe" --version
+& "$env:LOCALAPPDATA\Programs\SvnFlow\SvnFlow.exe" merge --help
+```
+
+Windows 版要求系统已安装 `svn.exe` 且可从 `PATH` 调用。当前 Windows 包不包含 macOS 的 SwiftUI/AppKit 图形界面。
 
 ### 如何工作
 
@@ -72,7 +87,7 @@ Windows 10/11 x64 的共享引擎正在准备中，但 **Windows 桌面应用尚
 
 ### Overview
 
-SvnFlow is a macOS desktop app for teams that work with multiple SVN working copies, review configuration changes, and perform selective Dev → Release integrations. It uses the Subversion client and authentication configuration already present on the user's machine. This distribution repository does not store SVN passwords, authentication caches, real repository URLs, work reports, or user configuration.
+SvnFlow provides a macOS desktop app and a Windows command-line tool for teams that work with multiple SVN working copies, review configuration changes, and perform selective Dev → Release integrations. It uses the Subversion client and authentication configuration already present on the user's machine. This distribution repository does not store SVN passwords, authentication caches, real repository URLs, work reports, or user configuration.
 
 Key capabilities:
 
@@ -86,7 +101,7 @@ Key capabilities:
 
 ### Installation
 
-Current installable release: **1.25.0 (build 60)**.
+Current installable release: **1.26.0 (build 62)**.
 
 Requirements: **macOS 14 or later, Apple Silicon, and an installed `svn` command-line client**.
 
@@ -114,7 +129,21 @@ The installer verifies the platform, CPU architecture, SHA-256 checksum, app ver
 
 The current macOS package is ad-hoc signed for local evaluation. It is not yet an Apple Developer ID signed and notarized public release, and the installer does not bypass Gatekeeper.
 
-The shared engine for Windows 10/11 x64 is in preparation, but **the Windows desktop app has not been released**. The included PowerShell installer is a guard for a future GUI package: it stops clearly when that package is absent and never presents an internal validation engine as the desktop product.
+Windows 10/11 x64 has an installable command-line release that uses the same guarded merge and progress engine as the macOS app. Download and run the installer:
+
+```powershell
+$installer = Join-Path $env:TEMP "install-svnflow.ps1"
+Invoke-WebRequest https://raw.githubusercontent.com/HorizonXen/SvnFlowTool/main/install-windows.ps1 -OutFile $installer
+powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Repository HorizonXen/SvnFlowTool
+```
+
+Run the same commands again to update. Verify the installed version with:
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\SvnFlow\SvnFlow.exe" --version
+```
+
+The Windows package requires `svn.exe` on `PATH`. It does not include the macOS SwiftUI/AppKit graphical interface.
 
 ### How it works
 
@@ -132,6 +161,6 @@ The shared engine for Windows 10/11 x64 is in preparation, but **the Windows des
 
 ## Project status
 
-This repository contains installable release artifacts and installers, not the product's development source tree. No open-source license has been granted for the distributed application.
+The `main` branch contains installable release artifacts and installers. Reproducible build source and CI workflows are kept on the `source` branch. No open-source license has been granted for the distributed application.
 
 Inspired by the clear, workflow-first documentation structure of [obra/superpowers](https://github.com/obra/superpowers).

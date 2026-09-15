@@ -17,13 +17,21 @@ VERSION=$(/usr/bin/plutil -extract version raw -o - "$RELEASE_FILE")
 BUILD=$(/usr/bin/plutil -extract build raw -o - "$RELEASE_FILE")
 ARCHIVE="$REPOSITORY_DIR/packages/SvnFlow-macOS-arm64-$VERSION-$BUILD.zip"
 CHECKSUM_FILE="$ARCHIVE.sha256"
+WINDOWS_ARCHIVE="$REPOSITORY_DIR/packages/SvnFlow-Windows-x64-$VERSION-$BUILD.zip"
+WINDOWS_CHECKSUM_FILE="$WINDOWS_ARCHIVE.sha256"
 
 [ -f "$ARCHIVE" ] || fail "release archive is missing"
 [ -f "$CHECKSUM_FILE" ] || fail "release checksum is missing"
+[ -f "$WINDOWS_ARCHIVE" ] || fail "Windows release archive is missing"
+[ -f "$WINDOWS_CHECKSUM_FILE" ] || fail "Windows release checksum is missing"
 
 EXPECTED=$(awk 'NR == 1 {print $1}' "$CHECKSUM_FILE")
 ACTUAL=$(shasum -a 256 "$ARCHIVE" | awk '{print $1}')
 [ "$EXPECTED" = "$ACTUAL" ] || fail "release checksum does not match"
+WINDOWS_EXPECTED=$(awk 'NR == 1 {print $1}' "$WINDOWS_CHECKSUM_FILE")
+WINDOWS_ACTUAL=$(shasum -a 256 "$WINDOWS_ARCHIVE" | awk '{print $1}')
+[ "$WINDOWS_EXPECTED" = "$WINDOWS_ACTUAL" ] || fail "Windows release checksum does not match"
+unzip -Z1 "$WINDOWS_ARCHIVE" | grep -Fxq 'SvnFlow.exe' || fail "Windows archive does not contain SvnFlow.exe"
 
 STAGING=$(mktemp -d "${TMPDIR:-/tmp}/svnflow-public-check.XXXXXX")
 trap 'rm -rf "$STAGING"' EXIT HUP INT TERM
@@ -39,6 +47,7 @@ codesign --verify --deep --strict "$APP" || fail "code-signature verification fa
 
 SCAN_TEXT="$STAGING/scan-text.txt"
 find "$REPOSITORY_DIR" -type f \
+    ! -path "$REPOSITORY_DIR/.git" \
     ! -path "$REPOSITORY_DIR/.git/*" \
     ! -path "$REPOSITORY_DIR/packages/*" \
     ! -path "$SCRIPT_DIR/check-public-release.sh" \

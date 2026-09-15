@@ -58,6 +58,18 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./packaging/build-windows.ps1
+      - name: Build installable macOS package
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set +e
+          packaging/build-release.sh > macos-package.log 2>&1
+          status=$?
+          cat macos-package.log
+          if [ "$status" -ne 0 ]; then
+            tail -n 20 macos-package.log | while IFS= read -r line; do echo "::error title=macOS package::${line}"; done
+          fi
+          exit "$status"
       - uses: actions/upload-artifact@v4
         with:
           name: svnflow-engine-${{ runner.os }}-${{ runner.arch }}
@@ -65,4 +77,6 @@ jobs:
             .build/engine-dist/*
             dist/SvnFlow-Windows-*.zip
             dist/SvnFlow-Windows-*.zip.sha256
+            dist/SvnFlow-macOS-*.zip
+            dist/SvnFlow-macOS-*.zip.sha256
           if-no-files-found: error

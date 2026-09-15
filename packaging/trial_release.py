@@ -11,6 +11,14 @@ import pathlib
 import sys
 
 
+def safe_print(message: str, *, file=None) -> None:
+    """Avoid legacy Windows console encodings breaking release checks."""
+    stream = sys.stdout if file is None else file
+    encoding = getattr(stream, "encoding", None) or "utf-8"
+    printable = message.encode(encoding, errors="replace").decode(encoding)
+    print(printable, file=stream)
+
+
 def release_identity(root: pathlib.Path) -> dict:
     release = json.loads((root / "release.json").read_text(encoding="utf-8"))
     version, build = str(release["version"]), int(release["build"])
@@ -33,7 +41,7 @@ def approve(root: pathlib.Path) -> None:
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     temporary.replace(path)
-    print(f"已确认试用通过：{value['version']} ({value['build']}) · {value['sha256']}")
+    safe_print(f"已确认试用通过：{value['version']} ({value['build']}) · {value['sha256']}")
 
 
 def verify(root: pathlib.Path) -> None:
@@ -45,7 +53,7 @@ def verify(root: pathlib.Path) -> None:
     for key in ("schema", "version", "build", "archive", "sha256"):
         if actual.get(key) != expected[key]:
             raise RuntimeError("试用确认与当前安装包不匹配；请重新试用当前包后再确认。")
-    print(f"试用确认有效：{expected['version']} ({expected['build']})")
+    safe_print(f"试用确认有效：{expected['version']} ({expected['build']})")
 
 
 def main() -> int:
@@ -56,7 +64,7 @@ def main() -> int:
     try:
         (approve if args.mode == "approve" else verify)(args.root.resolve())
     except (OSError, ValueError, KeyError, json.JSONDecodeError, RuntimeError) as error:
-        print(str(error), file=sys.stderr)
+        safe_print(str(error), file=sys.stderr)
         return 1
     return 0
 

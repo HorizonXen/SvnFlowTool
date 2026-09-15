@@ -1,0 +1,46 @@
+# Build products and local tool state
+.build/
+dist/
+archives/
+vendor/
+.swiftpm/
+.DS_Store
+*.xcuserstate
+*.log
+*.trace
+__pycache__/
+*.py[cod]
+
+# Local application state and credentials
+.env
+.env.*
+!.env.example
+.svnflow-delivery-path
+.trial-approval.json
+*.plist
+*.p12
+*.pfx
+*.cer
+*.key
+*.pem
+*.mobileprovision
+
+# Real reports, workbooks, screenshots and internal design operations
+reports/
+.impeccable/
+AGENTS.md
+CHANGELOG.md
+docs/*
+*.xlsx
+*.xlsm
+*.xls
+*.bin
+
+# Only the currently selected, reproducible application icon is public.
+Resources/Brand/*
+!Resources/Brand/SvnFlow-icon-v3.png
+!Resources/Brand/SvnFlow-v3.icns
+
+# Public documentation is intentionally allow-listed
+!docs/public/
+!docs/public/**

@@ -22,7 +22,11 @@ jobs:
           cache: pip
           cache-dependency-path: packaging/engine-requirements.txt
       - name: Test portable settings and locks
-        run: python -m unittest discover -s Tests/CrossPlatform -v
+        run: python Tests/CrossPlatform/test_platform.py -v
+      - name: Test release approval guard
+        run: python Tests/CrossPlatform/test_trial_release.py -v
+      - name: Test Windows command entry
+        run: python Tests/CrossPlatform/test_windows_entry.py -v
       - name: Parse and guard Windows installer
         if: runner.os == 'Windows'
         shell: pwsh

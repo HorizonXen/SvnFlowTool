@@ -57,7 +57,7 @@ Windows 10/11 x64 提供可安装的命令行版，复用与 macOS 应用相同�
 ```powershell
 $installer = Join-Path $env:TEMP "install-svnflow.ps1"
 Invoke-WebRequest https://raw.githubusercontent.com/HorizonXen/SvnFlowTool/main/install-windows.ps1 -OutFile $installer
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Repository HorizonXen/SvnFlowTool
+powershell -NoProfile -ExecutionPolicy Bypass -File $installer
 ```
 
 重复执行同一组命令即可更新。安装后核对版本或查看合入命令：
@@ -134,7 +134,7 @@ Windows 10/11 x64 has an installable command-line release that uses the same gua
 ```powershell
 $installer = Join-Path $env:TEMP "install-svnflow.ps1"
 Invoke-WebRequest https://raw.githubusercontent.com/HorizonXen/SvnFlowTool/main/install-windows.ps1 -OutFile $installer
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Repository HorizonXen/SvnFlowTool
+powershell -NoProfile -ExecutionPolicy Bypass -File $installer
 ```
 
 Run the same commands again to update. Verify the installed version with:

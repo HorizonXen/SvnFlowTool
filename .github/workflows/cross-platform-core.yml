@@ -23,8 +23,10 @@ jobs:
           cache-dependency-path: packaging/engine-requirements.txt
       - name: Test portable settings and locks
         run: python Tests/CrossPlatform/test_platform.py -v
-      - name: Test release approval guard
-        run: python Tests/CrossPlatform/test_trial_release.py -v
+      - name: Test exact archive approval guard
+        run: python Tests/CrossPlatform/test_trial_release.py TrialReleaseTests.test_publish_requires_approval_for_exact_archive -v
+      - name: Test version approval guard
+        run: python Tests/CrossPlatform/test_trial_release.py TrialReleaseTests.test_version_change_invalidates_approval -v
       - name: Test Windows command entry
         run: python Tests/CrossPlatform/test_windows_entry.py -v
       - name: Parse and guard Windows installer

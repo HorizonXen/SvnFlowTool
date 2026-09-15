@@ -83,3 +83,27 @@ jobs:
             gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$GITHUB_REF_NAME" --generate-notes
           gh release upload "$GITHUB_REF_NAME" release-assets/* release.json packaging/install-windows.ps1 packaging/install-macos.sh --repo "$GITHUB_REPOSITORY" --clobber
           gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json url,tagName
+
+  delivery-assets:
+    if: github.ref_type == 'tag'
+    needs: [macos, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Commit verified packages to the delivery branch
+        run: |
+          mkdir -p packages
+          cp release-assets/SvnFlow-macOS-*.zip release-assets/SvnFlow-macOS-*.zip.sha256 packages/
+          cp release-assets/SvnFlow-Windows-*.zip release-assets/SvnFlow-Windows-*.zip.sha256 packages/
+          git config user.name github-actions[bot]
+          git config user.email github-actions
+          git add packages
+          git diff --cached --quiet && exit 0
+          git commit -m "Add $GITHUB_REF_NAME release packages"
+          git push origin HEAD:main

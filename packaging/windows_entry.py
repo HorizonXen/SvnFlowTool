@@ -44,7 +44,15 @@ def main(argv: list[str] | None = None) -> int:
         version, build = release_identity()
         print(f"SvnFlow {version} ({build})")
         return 0
-    if not arguments or arguments[0] in {"-h", "--help"}:
+    if not arguments:
+        print_help()
+        if sys.platform == "win32" and sys.stdin.isatty():
+            try:
+                input("\nThis is the Windows command-line edition. Press Enter to close...")
+            except (EOFError, KeyboardInterrupt):
+                pass
+        return 0
+    if arguments[0] in {"-h", "--help"}:
         print_help()
         return 0
     module = COMMANDS.get(arguments[0])

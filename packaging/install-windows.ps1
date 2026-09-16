@@ -4,6 +4,7 @@ param(
     [string]$PackageDir = $env:SVNFLOW_PACKAGE_DIR,
     [string]$Repository = $env:SVNFLOW_GITHUB_REPOSITORY,
     [string]$ReleaseBaseUrl = $env:SVNFLOW_RELEASE_BASE_URL,
+    [switch]$ValidatePaths,
     [switch]$NoShortcut
 )
 
@@ -23,6 +24,10 @@ if ([string]::IsNullOrWhiteSpace($InstallDir)) {
 }
 if ([string]::IsNullOrWhiteSpace($PackageDir)) {
     $PackageDir = Join-Path $ScriptRoot "packages"
+}
+if ($ValidatePaths) {
+    Write-Output "SvnFlow installer paths ready."
+    return
 }
 
 if (-not [Environment]::Is64BitOperatingSystem) {

@@ -1,21 +1,41 @@
 [CmdletBinding()]
 param(
-    [string]$InstallDir = $(if ($env:SVNFLOW_INSTALL_DIR) { $env:SVNFLOW_INSTALL_DIR } else { Join-Path $env:LOCALAPPDATA "Programs\SvnFlow" }),
-    [string]$PackageDir = $(if ($env:SVNFLOW_PACKAGE_DIR) { $env:SVNFLOW_PACKAGE_DIR } else { Join-Path $PSScriptRoot "packages" }),
+    [string]$InstallDir = $env:SVNFLOW_INSTALL_DIR,
+    [string]$PackageDir = $env:SVNFLOW_PACKAGE_DIR,
     [string]$Repository = $env:SVNFLOW_GITHUB_REPOSITORY,
     [string]$ReleaseBaseUrl = $env:SVNFLOW_RELEASE_BASE_URL,
+    [switch]$ValidatePaths,
     [switch]$NoShortcut
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+$ScriptRoot = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($ScriptRoot)) {
+    $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+if ([string]::IsNullOrWhiteSpace($InstallDir)) {
+    $LocalPrograms = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+    if ([string]::IsNullOrWhiteSpace($LocalPrograms)) {
+        throw "Windows LocalApplicationData directory is unavailable. Pass -InstallDir explicitly."
+    }
+    $InstallDir = Join-Path $LocalPrograms "Programs\SvnFlow"
+}
+if ([string]::IsNullOrWhiteSpace($PackageDir)) {
+    $PackageDir = Join-Path $ScriptRoot "packages"
+}
+if ($ValidatePaths) {
+    Write-Output "SvnFlow installer paths ready."
+    return
+}
+
 if (-not [Environment]::Is64BitOperatingSystem) {
     throw "This release requires 64-bit Windows 10 or Windows 11."
 }
 
 $DownloadRoot = $null
-$ReleasePath = Join-Path $PSScriptRoot "release.json"
+$ReleasePath = Join-Path $ScriptRoot "release.json"
 if (-not (Test-Path -LiteralPath $ReleasePath -PathType Leaf)) {
     $DownloadRoot = Join-Path ([IO.Path]::GetTempPath()) ("svnflow-download-" + [Guid]::NewGuid().ToString("N"))
     New-Item -ItemType Directory -Path $DownloadRoot | Out-Null
